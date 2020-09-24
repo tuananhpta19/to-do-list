@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script
+    src="https://code.jquery.com/jquery-3.5.1.min.js"
+    integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+    crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</head>
+<body>
+   <div class="container">
+       <div class="row content">
+
+       </div>
+   </div>
+</body>
+<script>
+    getData();
+    //post, put , delete
+
+    function getData(){
+        $.ajax({
+            url: '/users',
+            method:"GET",
+        }).then(function(data){
+            $(".content").empty();
+            for(let i = 0; i< data.data.length; i++){
+                let element = data.data;
+                let template = null;
+                if(element[i].age){
+                     template = `
+                        <div class="card col-3" style="width: 18rem;">
+                            <div class="card-body">
+                                <p>
+                                    Email: <span>${element[i].email}</span>
+                                    <input type="text" value=${element[i].email} id="email-${element[i]._id}" class="d-none"/>
+                                </p>
+                                <p>
+                                    Tên: <span>${element[i].username}</span>
+                                    <input type="text" value=${element[i].username} id="username-${element[i]._id}" class="d-none"/>
+                                </p>
+                                <p>
+                                    Mật khẩu: <span>${element[i].password}</span>
+                                    <input type="text" value=${element[i].password} id="password-${element[i]._id}" class="d-none"/>
+                                </p>
+                                <p>
+                                    age: <span>${element[i].username}</span>
+                                    <input type="text" value=${element[i].age} id="age-${element[i]._id}" class="d-none"/>
+                                </p>
+                                <button type="button" class="btn btn-info btn-edit" data-id=${element[i]._id}>Sửa</button>
+                                <button type="button" class="btn btn-warning d-none btn-save" data-id=${element[i]._id} onClick=handleSave.call(this)>Lưu lại</button>
+                                <button type="button" class="btn btn-light d-none btn-cancel">Hủy</button>
+                                <button type="button" class="btn btn-primary btn-delete">Xóa</button>
+                            </div>
+                        </div>
+                    `
+                }else{
+                    template = `
+                        <div class="card col-3" style="width: 18rem;">
+                            <div class="card-body">
+                                <p>
+                                    Email: <span>${element[i].email}</span>
+                                    <input type="text" value=${element[i].email} id="email-${element[i]._id}" class="d-none"/>
+                                </p>
+                                <p>
+                                    Tên: <span>${element[i].username}</span>
+                                    <input type="text" value=${element[i].username} id="username-${element[i]._id}" class="d-none"/>
+                                </p>
+                                <p>
+                                    Mật khẩu: <span>${element[i].password}</span>
+                                    <input type="text" value=${element[i].password} id="password-${element[i]._id}" class="d-none"/>
+                                </p>
+                                <button type="button" class="btn btn-info btn-edit" data-id=${element[i]._id}>Sửa</button>
+                                <button type="button" class="btn btn-warning d-none btn-save" data-id=${element[i]._id} onClick=handleSave.call(this)>Lưu lại</button>
+                                <button type="button" class="btn btn-light d-none btn-cancel">Hủy</button>
+                                <button type="button" class="btn btn-primary btn-delete">Xóa</button>
+                            </div>
+                        </div>
+                    `
+                }
+                $(".content").append(template)
+            }      
+            $('.btn-edit').click(function(){
+               let id = $(this).attr('data-id');
+               $(this).addClass("d-none");
+               $(this).parent().find("p").find("input").removeClass("d-none");
+               $(this).parent().find(".btn-save").removeClass("d-none");
+               $(this).parent().find(".btn-cancel").removeClass("d-none");
+               $(this).parent().find(".btn-delete").addClass("d-none");
+               $(this).parent().find("p").find("span").addClass("d-none");
+            })
+
+            $('.btn-cancel').click(function(){
+               $(this).addClass("d-none");
+               $(this).parent().find("p").find("input").addClass("d-none");
+               $(this).parent().find(".btn-save").addClass("d-none");
+               $(this).parent().find(".btn-cancel").addClass("d-none");
+               $(this).parent().find(".btn-delete").removeClass("d-none");
+               $(this).parent().find(".btn-edit").removeClass("d-none");
+               $(this).parent().find("p").find("span").removeClass("d-none");
+            })
+
+        })
+    }
+
+function handleSave(){
+    var id =  $(this).attr("data-id");
+    var email= $(this).parent().find("p").find("input#email-"+id).val();
+    var username= $(this).parent().find("p").find("input#username-"+id).val();
+    var password= $(this).parent().find("p").find("input#password-"+id).val();
+    var age= $(this).parent().find("p").find("input#age-"+id).val();
+    $.ajax({
+        url: '/users/'+id,
+        method: "PUT",
+        data:{
+            email,
+            username,
+            password,
+            age
+        }
+    }).then(function(data){
+        if(!data.error && data.status==200){
+            alert(data.message);
+            getData()
+        }
+    })
+}
+
+
+</script>
+</html>

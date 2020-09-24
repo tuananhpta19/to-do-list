@@ -1,0 +1,10 @@
+var express = require('express');
+var router = express.Router();
+var { signUpController, getAllUserController, getDetailUserController, deleteUserController, updateUserController, loginController } = require("../controllers/userController");
+router.get("/", getAllUserController);
+router.get("/:idUser", getDetailUserController);
+router.post('/', signUpController);
+router.delete("/:idUser", deleteUserController);
+router.put("/:idUser", updateUserController);
+router.post("/login", loginController);
+module.exports = router;
