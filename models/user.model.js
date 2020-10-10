@@ -4,7 +4,11 @@ let userSchema = new Schema({
     email: String,
     username: String,
     password: String,
-    age: Number
+    age: Number,
+    role: {
+        type: String,
+        default: 'user'
+    }
 },{
     collection: 'user',
     timestamps: true

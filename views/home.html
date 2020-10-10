@@ -18,6 +18,26 @@
 
        </div>
    </div>
+   
+
+   <div class="modal fade" id="detail-user" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 <script>
     getData();
@@ -55,6 +75,10 @@
                                 <button type="button" class="btn btn-info btn-edit" data-id=${element[i]._id}>Sửa</button>
                                 <button type="button" class="btn btn-warning d-none btn-save" data-id=${element[i]._id} onClick=handleSave.call(this)>Lưu lại</button>
                                 <button type="button" class="btn btn-light d-none btn-cancel">Hủy</button>
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-id=${element[i]._id} onClick=handleDetailUser.call(this) class="btn-detail-user" data-target="#detail-user">
+                                    Chi tiet
+                                </button>
+                                <button  type="button" class="btn btn-primary btn-detail-2" id="" data-id=${element[i]._id} onClick=handleDetailUser2.call(this)> Chi tiet loai 2 </button>
                                 <button type="button" class="btn btn-primary btn-delete">Xóa</button>
                             </div>
                         </div>
@@ -79,6 +103,10 @@
                                 <button type="button" class="btn btn-warning d-none btn-save" data-id=${element[i]._id} onClick=handleSave.call(this)>Lưu lại</button>
                                 <button type="button" class="btn btn-light d-none btn-cancel">Hủy</button>
                                 <button type="button" class="btn btn-primary btn-delete">Xóa</button>
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#detail-user" data-id=${element[i]._id} onClick=handleDetailUser.call(this)>
+                                    Chi tiet
+                                </button>
+                                <button  type="button" class="btn btn-primary btn-detail-2" id="" data-id=${element[i]._id} onClick=handleDetailUser2.call(this)> Chi tiet loai 2 </button>
                             </div>
                         </div>
                     `
@@ -108,6 +136,51 @@
         })
     }
 
+
+    function handleDetailUser2(){
+        let id = $(this).attr('data-id');
+        window.location.href= "/user/"+id
+
+    }
+
+    function handleDetailUser(){
+        let id = $(this).attr('data-id');
+        console.log(id);
+        $.ajax({
+            url: "/users/"+id,
+            method: "GET"
+        }).then((user) => {
+            $(".modal-body").empty();
+            let template = `
+                        <div class="card" style="width: 100%;">
+                            <div class="card-body">
+                                <p>
+                                    Email: <span>${user.data.email}</span>
+                                </p>
+                                <p>
+                                    Tên: <span>${user.data.username}</span>
+                                </p>
+                                <p>
+                                    Mật khẩu: <span>${user.data.password}</span>
+                                </p>
+                                <p>
+                                    thời gian tạo tài khoản: <span>${new Date(user.data.createdAt).toLocaleDateString()}</span>
+                                </p>
+                                <p>
+                                    thời gian sửa tài khoản: <span>${new Date(user.data.updatedAt).toLocaleDateString()}</span>
+                                </p>
+                            </div>
+                        </div>
+                    `;         
+            $(".modal-body").append(template)
+        }).catch((err) => {
+            
+        });
+    }
+
+
+
+
 function handleSave(){
     var id =  $(this).attr("data-id");
     var email= $(this).parent().find("p").find("input#email-"+id).val();
@@ -130,6 +203,38 @@ function handleSave(){
         }
     })
 }
+
+$("#btn-get-cookie").click(function(){
+    let token = getCookie("token");
+    //body, query, params, Bearer, thư viện ngoài cookie-parser
+    $.ajax({
+        url: "/get-token",
+        method: 'get',
+        headers:{
+            "Authorization": "Bearer "+token
+        }
+    }).then(function(data){
+
+    })
+})
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+
 
 
 </script>

@@ -1,5 +1,6 @@
 let userServices = require("../services/userServices");
-
+let TokenModel = require("../models/token");
+let jwt = require("jsonwebtoken")
 function getAllUserController(req, res){
     userServices.getAllUser().then(function(data){
         return res.json({
@@ -96,7 +97,9 @@ function updateUserController(req, res){
 
 
 function signUpController(req, res){
-    let {email, username, password} = req.body
+    let {email, username, password} = req.body;
+    if(user.role === "user") req.body.role = "user";
+    console.log(req.user, "user");
     userServices.signUp(email, username, password).then(function(){
         return res.json({
             error: false,
@@ -115,7 +118,7 @@ function signUpController(req, res){
 
 
 function loginController(req, res){
-    let {email, password} = req.body
+    let {email, password} = req.body;
     userServices.login(email, password).then(function(data){
         if(!data){
             return res.json({
@@ -124,11 +127,31 @@ function loginController(req, res){
                 message: 'Sai tài khoản hoặc mật khẩu'
             })
         }else{
-            return res.json({
-                error: false,
-                status: 200,
-                message: 'Đăng nhập thành công'
+            let accessToken = jwt.sign({_id: data._id}, process.env.JWT_SECRET, {expiresIn: "1d"});
+            let refreshToken = jwt.sign({_id: data._id}, process.env.JWT_SECRET, {expiresIn: "3650d"});
+            TokenModel.findOne({idUser: data._id}).then(function(checkToken){
+                if(!checkToken){
+                    TokenModel.create({
+                        idUser: data._id,
+                        value: refreshToken
+                    }).then(function(){
+                       return res.json({
+                            accessToken: accessToken,
+                            refreshToken: refreshToken
+                        })
+                    })
+                }else{
+                    TokenModel.updateOne({idUser: data._id},{
+                        value: refreshToken
+                    }).then(function(){
+                       return res.json({
+                            accessToken: accessToken,
+                            refreshToken: refreshToken
+                        })
+                    })
+                }
             })
+            
         }
 
     }).catch(function(err){

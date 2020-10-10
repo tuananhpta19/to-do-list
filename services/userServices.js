@@ -30,11 +30,20 @@ function login(email, password){
     return UserModel.findOne({email, password})
 }
 
+function checkUser(email){
+    return UserModel.findOne({email})
+}
+
+function checkId(id){
+    return UserModel.findOne({_id: id})
+}
 module.exports = {
     signUp,
     getAllUser,
     getDetailUser,
     updateUser,
     deleteUser,
-    login
+    login,
+    checkUser,
+    checkId
 }
